@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bean Blaster</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #f4f3f0;
+      min-height: 100vh;
+      font-family: 'Sora', sans-serif;
+      color: #1c1917;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e2dc;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #78716c;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-field {
+      width: 100%;
+      background: #faf9f7;
+      border: 1px solid #e5e2dc;
+      border-radius: 6px;
+      color: #1c1917;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input-field:focus {
+      border-color: #a8a29e;
+      box-shadow: 0 0 0 3px rgba(120,113,108,0.1);
+    }
+    .input-field::placeholder { color: #c4bfb8; }
+
+    .btn {
+      width: 100%;
+      background: #1c1917;
+      color: #ffffff;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 0.75rem 1.5rem;
+      transition: background 0.15s, transform 0.08s;
+      user-select: none;
+    }
+    .btn:hover  { background: #292524; }
+    .btn:active { transform: scale(0.99); }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #a8a29e;
+      margin-bottom: 1.25rem;
+    }
+
+    .dispenser-card {
+      background: #faf9f7;
+      border: 1px solid #e5e2dc;
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .value-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.9rem;
+      font-weight: 500;
+      line-height: 1.1;
+    }
+
+    .stacks-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #a8a29e;
+      margin-top: 0.25rem;
+    }
+
+    .error-msg {
+      background: #fff1f0;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+      font-size: 0.85rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      animation: fadeUp 0.25s ease both;
+    }
+
+    .quadrant-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #f4f3f0;
+      border: 1px solid #e5e2dc;
+      border-radius: 99px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #57534e;
+    }
+
+    .compass-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #1c1917;
+      flex-shrink: 0;
+    }
+
+    .sep { border: none; border-top: 1px solid #f0ede8; }
+  </style>
+</head>
+<body class="flex flex-col items-center px-4 py-14 gap-6">
+
+  <!-- Header -->
+  <header class="text-center max-w-sm w-full">
+    <h1 class="text-2xl font-semibold tracking-tight text-stone-900">Bean Blaster</h1>
+    <p class="text-sm text-stone-400 mt-1.5">Enter coordinates to get dispenser fill amounts.</p>
+  </header>
+
+  <!-- Machine Coords -->
+  <section class="card w-full max-w-sm p-5">
+    <div class="section-label">Machine coordinates <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:0.65rem;color:#c4bfb8;">(magma block coords)</span></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label>Machine X</label>
+        <input id="machX" type="number" class="input-field" placeholder="e.g. 100" />
+      </div>
+      <div>
+        <label>Machine Z</label>
+        <input id="machZ" type="number" class="input-field" placeholder="e.g. 200" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Target + Button -->
+  <section class="card w-full max-w-sm p-5">
+    <div class="section-label">Target location</div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label>Target X</label>
+        <input id="tgtX" type="number" class="input-field" placeholder="e.g. 350" />
+      </div>
+      <div>
+        <label>Target Z</label>
+        <input id="tgtZ" type="number" class="input-field" placeholder="e.g. 180" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section id="result" class="w-full max-w-sm hidden"></section>
+
+  <!-- Footer -->
+  <footer class="mt-2 pb-4">
+    <a href="https://www.planetminecraft.com/project/bean-blaster/" target="_blank" rel="noopener"
+       class="text-xs text-stone-400 hover:text-stone-600 transition-colors undeline"
+       style="font-family:'JetBrains Mono',monospace;">Bean blaster download</a>
+  </footer>
+
+
+<script>
+  ['machX','machZ','tgtX','tgtZ'].forEach(id => {
+    document.getElementById(id).addEventListener('input', calculate);
+  });
+
+  function toStacks(n) {
+    const abs    = Math.abs(n);
+    const stacks = Math.floor(abs / 64);
+    const rem    = abs % 64;
+    const sign   = n < 0 ? '−' : '';
+    if (stacks === 0) return `${sign}${rem} items`;
+    if (rem === 0)    return `${sign}${stacks} stack${stacks !== 1 ? 's' : ''}`;
+    return `${sign}${stacks} stack${stacks !== 1 ? 's' : ''} + ${rem}`;
+  }
+
+  function runCalc(machX, machZ, tgtX, tgtZ) {
+    const relX = tgtX - machX;
+    const relZ = tgtZ - machZ;
+
+    const aboveV1 = (relX / 13.5)  < relZ;
+    const aboveV2 = (relX / -15)   < relZ;
+    const aboveV3 = (relZ / 13.7)  < relX;
+    const aboveV4 = (relZ / -15.2) < relX;
+
+    let quadrant;
+    if (aboveV1) {
+      if (aboveV3)       quadrant = 'NE';
+      else if (aboveV2)  quadrant = 'NW';
+      else               quadrant = 'SW';
+    } else if (aboveV4)  quadrant = 'SE';
+    else if (!aboveV2)   quadrant = 'SW';
+
+    if (!quadrant) return { error: 'Could not determine quadrant — check your coordinates.' };
+
+    let factor, otherFactor;
+    if      (quadrant === 'NE') { factor = 13.5;  otherFactor = 13.7;  }
+    else if (quadrant === 'NW') { factor = -15;   otherFactor = 13.7;  }
+    else if (quadrant === 'SE') { factor = 13.5;  otherFactor = -15.2; }
+    else                        { factor = -15;   otherFactor = -15.2; }
+
+    let result      = factor * otherFactor;
+    let otherResult = factor * relZ - relX;
+    result          = result - 1;
+    const crossX    = otherResult / result;
+    const crossZ    = crossX * otherFactor;
+
+    let endingZ = (quadrant === 'NE' || quadrant === 'NW') ? crossZ / 36 : crossZ / -31;
+    let endingX = crossX - relX;
+
+    let dispensers;
+    if (quadrant === 'NE') {
+      endingX = endingX / -31;
+      dispensers = [{ id: 2, value: Math.trunc(endingZ) }, { id: 3, value: Math.trunc(endingX) }];
+    } else if (quadrant === 'NW') {
+      endingX = endingX / 31;
+      dispensers = [{ id: 1, value: Math.trunc(endingX) }, { id: 3, value: Math.trunc(endingZ) }];
+    } else if (quadrant === 'SE') {
+      endingX = endingX / -36;
+      dispensers = [{ id: 2, value: Math.trunc(endingX) }, { id: 4, value: Math.trunc(endingZ) }];
+    } else {
+      endingX = endingX / 36;
+      dispensers = [{ id: 1, value: Math.trunc(endingX) }, { id: 4, value: Math.trunc(endingZ) }];
+    }
+
+    return { quadrant, dispensers };
+  }
+
+  function compassSVG(quadrant) {
+    const dotPos = { NE: [58,22], NW: [22,22], SE: [58,58], SW: [22,58] };
+    const [dx, dy] = dotPos[quadrant] || [40,40];
+    const dirs = [
+      { l:'N', x:40, y:8  },
+      { l:'E', x:72, y:40 },
+      { l:'S', x:40, y:72 },
+      { l:'W', x:8,  y:40 },
+    ];
+    const labels = dirs.map(({ l, x, y }) => {
+      const active = quadrant && quadrant.includes(l);
+      return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Sora, sans-serif" font-size="9" font-weight="${active ? 600 : 400}"
+        fill="${active ? '#1c1917' : '#c4bfb8'}">${l}</text>`;
+    }).join('');
+    return `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+      <circle cx="40" cy="40" r="34" stroke="#e5e2dc" stroke-width="1"/>
+      <line x1="40" y1="6" x2="40" y2="74" stroke="#f0ede8" stroke-width="1"/>
+      <line x1="6"  y1="40" x2="74" y2="40" stroke="#f0ede8" stroke-width="1"/>
+      <circle cx="${dx}" cy="${dy}" r="4.5" fill="#1c1917"/>
+      ${labels}
+    </svg>`;
+  }
+
+  function renderResult(data) {
+    const section = document.getElementById('result');
+    section.classList.remove('hidden');
+
+    if (data.error) {
+      section.innerHTML = `<div class="error-msg">${data.error}</div>`;
+      return;
+    }
+
+    const cards = data.dispensers.map((d, i) => {
+      const neg = d.value < 0;
+      return `
+        <div class="dispenser-card" style="animation-delay:${i * 0.1}s">
+          <div class="text-xs font-semibold text-stone-400 tracking-widest uppercase mb-2">
+            Dispenser ${d.id}
+          </div>
+          <div class="value-num ${neg ? 'text-red-500' : 'text-stone-900'}">${d.value}</div>
+          <div class="stacks-text">${toStacks(d.value)}</div>
+        </div>`;
+    }).join('');
+
+    section.innerHTML = `
+      <div class="card p-5">
+        <hr class="sep mb-4" style="margin-top:0"/>
+        <div class="grid grid-cols-2 gap-3">
+          ${cards}
+        </div>
+        <p class="text-xs text-stone-400 mt-4 leading-relaxed">
+          <span class="text-red-400 font-medium">Negative</span> = remove items &nbsp;·&nbsp;
+          <span class="font-medium text-stone-600">Positive</span> = add items
+        </p>
+      </div>`;
+  }
+
+  function calculate() {
+    const machX = parseFloat(document.getElementById('machX').value);
+    const machZ = parseFloat(document.getElementById('machZ').value);
+    const tgtX  = parseFloat(document.getElementById('tgtX').value);
+    const tgtZ  = parseFloat(document.getElementById('tgtZ').value);
+
+    if ([machX, machZ, tgtX, tgtZ].some(isNaN)) {
+      renderResult({ error: 'Please fill in all four coordinate fields.' });
+      return;
+    }
+
+    const data = runCalc(machX, machZ, tgtX, tgtZ);
+    const firstTime = document.getElementById('result').classList.contains('hidden');
+    renderResult(data);
+    if (firstTime) document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
