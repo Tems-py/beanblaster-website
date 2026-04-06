@@ -184,10 +184,14 @@
   <section id="result" class="w-full max-w-sm hidden"></section>
 
   <!-- Footer -->
-  <footer class="mt-2 pb-4">
+  <footer class="mt-2 pb-4 flex gap-5 items-center">
     <a href="https://www.planetminecraft.com/project/bean-blaster/" target="_blank" rel="noopener"
-       class="text-xs text-stone-400 hover:text-stone-600 transition-colors undeline"
+       class="text-xs text-stone-400 hover:text-stone-600 transition-colors underline"
        style="font-family:'JetBrains Mono',monospace;">Bean blaster download</a>
+    <span class="text-stone-300" style="font-size:0.6rem;">·</span>
+    <a href="https://github.com/Tems-py/beanblaster-website" target="_blank" rel="noopener"
+       class="text-xs text-stone-400 hover:text-stone-600 transition-colors underline"
+       style="font-family:'JetBrains Mono',monospace;">source</a>
   </footer>
 
 
@@ -305,15 +309,25 @@
 
     section.innerHTML = `
       <div class="card p-5">
-        <hr class="sep mb-4" style="margin-top:0"/>
         <div class="grid grid-cols-2 gap-3">
           ${cards}
         </div>
-        <p class="text-xs text-stone-400 mt-4 leading-relaxed">
-          <span class="text-red-400 font-medium">Negative</span> = remove items &nbsp;·&nbsp;
-          <span class="font-medium text-stone-600">Positive</span> = add items
-        </p>
       </div>`;
+  }
+
+  function saveCoords(machX, machZ, tgtX, tgtZ) {
+    localStorage.setItem('bb_coords', JSON.stringify({ machX, machZ, tgtX, tgtZ }));
+  }
+
+  function loadCoords() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('bb_coords'));
+      if (!saved) return;
+      if (saved.machX !== undefined) document.getElementById('machX').value = saved.machX;
+      if (saved.machZ !== undefined) document.getElementById('machZ').value = saved.machZ;
+      if (saved.tgtX  !== undefined) document.getElementById('tgtX').value  = saved.tgtX;
+      if (saved.tgtZ  !== undefined) document.getElementById('tgtZ').value  = saved.tgtZ;
+    } catch {}
   }
 
   function calculate() {
@@ -327,11 +341,15 @@
       return;
     }
 
+    saveCoords(machX, machZ, tgtX, tgtZ);
     const data = runCalc(machX, machZ, tgtX, tgtZ);
     const firstTime = document.getElementById('result').classList.contains('hidden');
     renderResult(data);
     if (firstTime) document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  loadCoords();
+  calculate();
 </script>
 </body>
 </html>
